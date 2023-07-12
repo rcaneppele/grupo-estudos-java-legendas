@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class LegendaApplication {
@@ -26,12 +28,18 @@ public class LegendaApplication {
             String minutagens[] = linhaMinutagem.split(" --> ");
             String minutagemInicial = minutagens[0];
             String minutagemFinal = minutagens[1];
-            String minutagemInicialQuebrada[] = minutagemInicial.split(",");
-            String minutagemFinalQuebrada[] = minutagemFinal.split(",");
-            int novaMinutagemInicial = Integer.parseInt(minutagemInicialQuebrada[1]) + tempo;
-            int novaMinutagemFinal = Integer.parseInt(minutagemFinalQuebrada[1]) + tempo;
 
-            escritor.println(minutagemInicialQuebrada[0] +"," +novaMinutagemInicial + " --> " + minutagemFinalQuebrada[0] +"," +novaMinutagemFinal);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss,SSS");
+
+            LocalTime horarioInicial = LocalTime.parse(minutagemInicial, formatter);
+            horarioInicial = horarioInicial.plusNanos(tempo * 1_000_000);
+
+            LocalTime horarioFinal = LocalTime.parse(minutagemFinal, formatter);
+            horarioFinal = horarioFinal.plusNanos(tempo * 1_000_000);
+
+            escritor.print(horarioInicial.format(formatter));
+            escritor.print(" --> ");
+            escritor.println(horarioFinal.format(formatter));
 
             while (leitor.hasNextLine()) {
                 String proximaLinha = leitor.nextLine();
@@ -47,12 +55,15 @@ public class LegendaApplication {
                 minutagemInicial = minutagens[0];
                 minutagemFinal = minutagens[1];
 
-                minutagemInicialQuebrada = minutagemInicial.split(",");
-                minutagemFinalQuebrada = minutagemFinal.split(",");
-                novaMinutagemInicial = Integer.parseInt(minutagemInicialQuebrada[1]) + tempo;
-                novaMinutagemFinal = Integer.parseInt(minutagemFinalQuebrada[1]) + tempo;
+                horarioInicial = LocalTime.parse(minutagemInicial, formatter);
+                horarioInicial = horarioInicial.plusNanos(tempo * 1_000_000);
 
-                escritor.println(minutagemInicialQuebrada[0] +"," +novaMinutagemInicial + " --> " + minutagemFinalQuebrada[0] +"," +novaMinutagemFinal);
+                horarioFinal = LocalTime.parse(minutagemFinal, formatter);
+                horarioFinal = horarioFinal.plusNanos(tempo * 1_000_000);
+
+                escritor.print(horarioInicial.format(formatter));
+                escritor.print(" --> ");
+                escritor.println(horarioFinal.format(formatter));
             }
         } catch (Exception e) {
             System.out.println("Erro ao carregar o arquivo: " + e.getMessage());
