@@ -1,9 +1,5 @@
 package br.com.alura.legenda;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
@@ -18,13 +14,11 @@ public class LegendaApplication {
         String nomeArquivo = new Scanner(System.in).nextLine();
 
         try {
-            InputStream inputStream = new FileInputStream(new File(nomeArquivo));
-            Scanner leitor = new Scanner(inputStream);
+            LeitorLegenda leitor = new LeitorLegenda(nomeArquivo);
+            EscritorArquivo escritor = new EscritorArquivo(nomeArquivo);
 
-            PrintStream escritor = new PrintStream(new File(nomeArquivo.replace(".srt", "") +"-novo.srt"));
-
-            escritor.println(leitor.nextLine());
-            String linhaMinutagem = leitor.nextLine();
+            escritor.escreverLinha(leitor.lerProximaLinha());
+            String linhaMinutagem = leitor.lerProximaLinha();
             String minutagens[] = linhaMinutagem.split(" --> ");
             String minutagemInicial = minutagens[0];
             String minutagemFinal = minutagens[1];
@@ -37,20 +31,18 @@ public class LegendaApplication {
             LocalTime horarioFinal = LocalTime.parse(minutagemFinal, formatter);
             horarioFinal = horarioFinal.plusNanos(tempo * 1_000_000);
 
-            escritor.print(horarioInicial.format(formatter));
-            escritor.print(" --> ");
-            escritor.println(horarioFinal.format(formatter));
+            escritor.escreverLinhaMinutagem(horarioInicial, horarioFinal);
 
-            while (leitor.hasNextLine()) {
-                String proximaLinha = leitor.nextLine();
+            while (leitor.temLinha()) {
+                String proximaLinha = leitor.lerProximaLinha();
                 if (!proximaLinha.isEmpty()) {
-                    escritor.println(proximaLinha);
+                    escritor.escreverLinha(proximaLinha);
                     continue;
                 }
 
-                escritor.println("");
-                escritor.println(leitor.nextLine());
-                linhaMinutagem = leitor.nextLine();
+                escritor.escreverLinha("");
+                escritor.escreverLinha(leitor.lerProximaLinha());
+                linhaMinutagem = leitor.lerProximaLinha();
                 minutagens = linhaMinutagem.split(" --> ");
                 minutagemInicial = minutagens[0];
                 minutagemFinal = minutagens[1];
@@ -61,9 +53,7 @@ public class LegendaApplication {
                 horarioFinal = LocalTime.parse(minutagemFinal, formatter);
                 horarioFinal = horarioFinal.plusNanos(tempo * 1_000_000);
 
-                escritor.print(horarioInicial.format(formatter));
-                escritor.print(" --> ");
-                escritor.println(horarioFinal.format(formatter));
+                escritor.escreverLinhaMinutagem(horarioInicial, horarioFinal);
             }
         } catch (Exception e) {
             System.out.println("Erro ao carregar o arquivo: " + e.getMessage());
