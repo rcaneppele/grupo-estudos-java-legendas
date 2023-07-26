@@ -14,7 +14,7 @@ public class LeitorLegenda {
 
     private Scanner scanner;
     private List<BlocoFala> blocos = new ArrayList<>();
-    private static final DateTimeFormatter FORMATO_HORARIO = DateTimeFormatter.ofPattern("HH:mm:ss,SSS");;
+    private static final DateTimeFormatter FORMATO_HORARIO = DateTimeFormatter.ofPattern("HH:mm:ss,SSS");
 
     public LeitorLegenda(String legenda) {
         try {
@@ -31,25 +31,35 @@ public class LeitorLegenda {
             Integer id = Integer.parseInt(scanner.nextLine());
 
             String linhaMinutagem = scanner.nextLine();
-            String minutagens[] = linhaMinutagem.split(" --> ");
-            String minutagemInicial = minutagens[0];
-            String minutagemFinal = minutagens[1];
+            LocalTime horarioInicial = lerHora(linhaMinutagem.split(" --> ")[0]);
+            LocalTime horarioFinal = lerHora(linhaMinutagem.split(" --> ")[1]);
 
-            LocalTime horarioInicial = LocalTime.parse(minutagemInicial, FORMATO_HORARIO);
-            horarioInicial = horarioInicial.plusNanos(tempo * 1_000_000);
-
-            LocalTime horarioFinal = LocalTime.parse(minutagemFinal, FORMATO_HORARIO);
-            horarioFinal = horarioFinal.plusNanos(tempo * 1_000_000);
-
-            BlocoFala bloco = new BlocoFala(id, inicio, fim, texto);
+            List<String> textos = lerTextos();
+            BlocoFala bloco = new BlocoFala(id, horarioInicial, horarioFinal, textos);
+            blocos.add(bloco);
         }
     }
 
-    public String lerProximaLinha() {
-        return scanner.nextLine();
+    private LocalTime lerHora(String hora) {
+        return LocalTime.parse(hora, FORMATO_HORARIO);
     }
 
-    public boolean temLinha() {
-        return scanner.hasNextLine();
+    private List<String> lerTextos() {
+        List<String> textos = new ArrayList<>();
+
+        String texto = scanner.nextLine();
+        while (!texto.isEmpty()) {
+            textos.add(texto);
+            if (!scanner.hasNextLine()) {
+                break;
+            }
+            texto = scanner.nextLine();
+        }
+
+        return textos;
+    }
+
+    public List<BlocoFala> getBlocos() {
+        return blocos;
     }
 }
